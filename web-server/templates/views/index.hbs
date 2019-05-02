@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Weather</title>
     <link rel="stylesheet" href="./css/styles.css">
-    <script src="./js/app.js"></script>
+    <link rel="icon" href="/img/weather.png">
 </head>
 <body>
-    <h1>{{title}}</h1>
-    <h2>{{name}}</h2>
-    <img src="/img/ninja.png" alt="">
+    <div class="main-content">
+        {{>header}}
+        <p>Use this page to get your weather</p>
+    </div>
+    {{>footer}}
 </body>
 </html>
