@@ -942,12 +942,10 @@ const configSchema = new n.schema.Entity('configs', {
 });
 
 const normalizedConfigs = n.normalize(configData, [configSchema]);
-// console.log(console.log(util.inspect(normalizedData2, false, null, true)));
-const data = JSON.stringify(util.inspect(normalizedConfigs, false, null, true).toString());
-fs.writeFile("temp.txt", data, (err) => {
-    if (err) console.log(err);
-    console.log("Successfully Written to File.");
-  });
+// console.log(console.log(util.inspect(normalizedConfigs, false, null, true)));
 
-const denormalizedConfigs = n.denormalize(1, configSchema, normalizedConfigs.entities)
+
+const find = (mode, view) => Object.values(normalizedConfigs.entities.configs).find(x => x.mode === mode && x.view === view).id;
+
+const denormalizedConfigs = n.denormalize(find(2,1), configSchema, normalizedConfigs.entities)
 console.log(console.log(util.inspect(denormalizedConfigs, false, null, true)));
