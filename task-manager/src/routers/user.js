@@ -3,6 +3,16 @@ const User = require('../models/user');
 
 const router = new express.Router();
 
+
+router.post('/users/login', async (req, res) => {
+    try {
+        const user = await User.findByCredentials(req.body.email, req.body.password);
+        res.send(user);
+    } catch (err) {
+        res.status(400).send(e);
+    }
+});
+
 router.route('/users')
     .get(async (req, res) => {
         try{
@@ -72,5 +82,6 @@ router.route('/users/:id')
             res.status(500).send();
         }
     });
+
 
 module.exports = router;
