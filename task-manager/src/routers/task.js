@@ -6,17 +6,37 @@ const router = new express.Router();
 
 router.route('/tasks')
     .get(auth, async (req, res) => {
+        const completed = req.query.completed;
+        const match = {};
+        const srt = {};
+
+        if (completed) {
+            match.completed = completed === 'true';
+        }
+
+        if (req.query.sortBy) {
+            const parts = req.query.sortBy.split(':');
+            srt[parts[0]] = parts[1] === 'asc' ? 1 : -1;
+        }
+
         try {
-            // const tasks = await Task.find({});
-            console.log(req.user)
-            await req.user.populate('tasks').execPopulate();
-            res.send(user.tasks);
+            // const tasks = await Task.find({owner: req.user._id}); -- this works too
+            await req.user.populate({
+                path: 'tasks',
+                match,
+                options: {
+                    limit: parseInt(req.query.limit),
+                    skip: parseInt(req.query.skip),
+                    sort: srt
+                }
+            }).execPopulate();
+            
+            res.send(req.user.tasks);
         } catch (err) {
             res.status(500).send(err);
         }
     })
     .post(auth, async (req, res) => {
-        // const task = new Task(req.body);
         const task = new Task({
             ...req.body,
             owner: req.user._id
@@ -43,7 +63,7 @@ router.route('/tasks/:id')
             res.status(500).send(err);
         }
     })
-    .patch(async (req, res) => {
+    .patch(auth, async (req, res) => {
         const _id = req.params.id;
         const body = req.body;
         const updates = Object.keys(body);
@@ -55,22 +75,24 @@ router.route('/tasks/:id')
         }
     
         try {
-            const task = await Task.findById(_id);
-            updates.forEach(update => task[update] = req.body[update]);
-            await task.save();
-    
+            const task = await Task.find({_id, owner: req.user._id})
+            
             if (!task) {
                 return res.status(404).send();
             }
+
+            updates.forEach(update => task[update] = req.body[update]);
+            await task.save();
+            
             res.send(task);
         } catch (err) {
             res.status(400).send();
         }
     })
-    .delete(async (req, res) => {
+    .delete(auth, async (req, res) => {
         const _id = req.params.id;
         try {
-            const task = await Task.findByIdAndDelete(_id);
+            const task = await Task.findOneAndDelete({_id, owner: req.user._id});
             if (!task) {
                 return res.status(404).send();
             }
